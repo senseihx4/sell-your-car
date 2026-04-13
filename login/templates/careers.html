@@ -1,0 +1,13 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MotorVault</title>
+</head>
+<body>
+  <p>{{ request.resolver_match.url_name }} page — coming soon.</p>
+  <a href="{% url 'home' %}">← Home</a>
+</body>
+</html>

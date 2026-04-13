@@ -1,0 +1,484 @@
+/* ─────────────────────────────────────────
+   MotorVault — otp.css
+   Place at: static/css/otp.css
+   ───────────────────────────────────────── */
+
+/* ── RESET & TOKENS ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg:           #0d0d0d;
+  --bg-2:         #141414;
+  --surface:      #1a1a1a;
+  --border:       rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(232, 200, 74, 0.60);
+  --text:         #f0ede8;
+  --text-muted:   #6e6b66;
+  --accent:       #e8c84a;
+  --accent-dim:   rgba(232, 200, 74, 0.10);
+  --danger:       #e05252;
+  --danger-dim:   rgba(224, 82, 82, 0.12);
+  --success:      #52c17a;
+  --success-dim:  rgba(82, 193, 122, 0.12);
+  --warning:      #e8a84a;
+  --radius:       10px;
+  --font-disp:    'Bebas Neue', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+  --ease:         cubic-bezier(.4, 0, .2, 1);
+}
+
+html { height: 100%; }
+
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow-x: hidden;
+}
+
+a   { color: inherit; text-decoration: none; }
+ul  { list-style: none; }
+
+/* ─────────────── LEFT PANEL ─────────────── */
+
+.panel-left {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  background: var(--bg-2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 3rem;
+  overflow: hidden;
+}
+
+.panel-left::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+/* Animated ring in left panel */
+.panel-left::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  right: -60px;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  border: 1px solid rgba(232, 200, 74, 0.12);
+  animation: spinRing 20s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes spinRing {
+  to { transform: rotate(360deg); }
+}
+
+.logo {
+  font-family: var(--font-disp);
+  font-size: 1.8rem;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  position: relative;
+}
+
+.logo span { color: var(--accent); }
+
+.panel-left__center { position: relative; }
+
+.panel-tag {
+  display: inline-block;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 1px solid rgba(232, 200, 74, 0.2);
+  margin-bottom: 1.25rem;
+}
+
+.panel-headline {
+  font-family: var(--font-disp);
+  font-size: clamp(2.6rem, 3.5vw, 4rem);
+  line-height: 0.95;
+  letter-spacing: 0.03em;
+  margin-bottom: 1.25rem;
+}
+
+.panel-headline em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.panel-sub {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.75;
+  max-width: 300px;
+}
+
+.perks {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.perk {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.perk__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ─────────────── RIGHT PANEL ─────────────── */
+
+.panel-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  min-height: 100svh;
+}
+
+.form-wrap {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  animation: fadeUp 0.6s var(--ease) both;
+}
+
+/* ─────────────── SHIELD ICON ─────────────── */
+
+.shield-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(232, 200, 74, 0.2);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  animation: fadeUp 0.5s 0.05s var(--ease) both;
+}
+
+.shield-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* ─────────────── HEADING ─────────────── */
+
+.form-heading {
+  text-align: center;
+  animation: fadeUp 0.5s 0.1s var(--ease) both;
+}
+
+.form-heading h1 {
+  font-family: var(--font-disp);
+  font-size: 2.6rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.form-heading__sub {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.form-heading__sub strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* ─────────────── OTP FORM ─────────────── */
+
+.otp-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+/* ── 6-box OTP input ── */
+.otp-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  animation: fadeUp 0.5s 0.15s var(--ease) both;
+}
+
+.otp-box {
+  width: 52px;
+  height: 60px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-disp);
+  font-size: 1.8rem;
+  letter-spacing: 0.05em;
+  text-align: center;
+  outline: none;
+  transition:
+    border-color 0.2s var(--ease),
+    box-shadow   0.2s var(--ease),
+    background   0.2s,
+    transform    0.15s;
+  caret-color: var(--accent);
+  -webkit-appearance: none;
+}
+
+.otp-box:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(232, 200, 74, 0.10);
+  background: #1e1e1e;
+  transform: translateY(-2px);
+}
+
+.otp-box.filled {
+  border-color: rgba(232, 200, 74, 0.35);
+}
+
+.otp-box.error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px var(--danger-dim);
+  animation: shake 0.5s var(--ease);
+}
+
+/* Middle divider dash between box 3 and 4 */
+.otp-divider {
+  width: 14px;
+  height: 2px;
+  background: var(--text-muted);
+  border-radius: 2px;
+  flex-shrink: 0;
+  opacity: 0.4;
+}
+
+/* ── Shake animation ── */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+.otp-inputs.shake {
+  animation: shake 0.5s var(--ease);
+}
+
+/* ── Timer row ── */
+.timer-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 13px;
+  color: var(--text-muted);
+  animation: fadeUp 0.5s 0.2s var(--ease) both;
+}
+
+.timer-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.timer-row strong {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.timer-row strong.expired {
+  color: var(--danger);
+}
+
+/* ── Submit button ── */
+.btn-submit {
+  width: 100%;
+  padding: 0.85rem;
+  background: var(--accent);
+  color: #0d0d0d;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition:
+    background  0.2s,
+    transform   0.15s,
+    box-shadow  0.2s;
+  animation: fadeUp 0.5s 0.25s var(--ease) both;
+}
+
+.btn-submit:hover {
+  background: #f5d76a;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(232, 200, 74, 0.2);
+}
+
+.btn-submit:active { transform: translateY(0); }
+
+/* ─────────────── RESEND ROW ─────────────── */
+
+.resend-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 13px;
+  color: var(--text-muted);
+  animation: fadeUp 0.5s 0.3s var(--ease) both;
+}
+
+.resend-btn {
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: not-allowed;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.resend-btn.active {
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.resend-btn.active:hover {
+  opacity: 0.8;
+}
+
+/* ─────────────── BACK LINK ─────────────── */
+
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: color 0.2s;
+  animation: fadeUp 0.5s 0.35s var(--ease) both;
+}
+
+.back-link:hover { color: var(--text); }
+
+/* ─────────────── DJANGO MESSAGES ─────────────── */
+
+.messages {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.message {
+  font-size: 13px;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  border-left: 3px solid var(--danger);
+  background: var(--danger-dim);
+  color: var(--text);
+  animation: fadeUp 0.3s var(--ease) both;
+}
+
+.message--success {
+  border-color: var(--success);
+  background: var(--success-dim);
+}
+
+.message--warning {
+  border-color: var(--warning);
+  background: rgba(232, 168, 74, 0.12);
+}
+
+/* ─────────────── ANIMATIONS ─────────────── */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─────────────── RESPONSIVE ─────────────── */
+
+@media (max-width: 768px) {
+  body {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-left {
+    display: none;
+  }
+
+  .panel-right {
+    padding: 4rem 1.5rem 2.5rem;
+    align-items: flex-start;
+  }
+
+  .otp-box {
+    width: 44px;
+    height: 52px;
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .otp-box {
+    width: 38px;
+    height: 46px;
+    font-size: 1.3rem;
+  }
+
+  .otp-divider { width: 8px; }
+}

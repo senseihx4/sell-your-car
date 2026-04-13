@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Log In — MotorVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+
+<body>
+
+  <!-- ── LEFT DECORATIVE PANEL ── -->
+  <aside class="panel-left">
+    <a href="{% url 'home' %}" class="logo">MOTOR<span>VAULT</span></a>
+
+    <div class="panel-left__center">
+      <span class="panel-tag">Welcome back</span>
+      <h2 class="panel-headline">Your Next<br><em>Ride Awaits</em><br>You</h2>
+      <p class="panel-sub">Log in to browse verified listings, track your enquiries, and pick up right where you left off.</p>
+    </div>
+
+    <ul class="perks">
+      <li class="perk"><span class="perk__dot"></span>Access saved vehicles</li>
+      <li class="perk"><span class="perk__dot"></span>Track your enquiries</li>
+      <li class="perk"><span class="perk__dot"></span>Manage your listings</li>
+      <li class="perk"><span class="perk__dot"></span>Exclusive member deals</li>
+    </ul>
+  </aside>
+
+  <!-- ── RIGHT FORM PANEL ── -->
+  <main class="panel-right">
+    <div class="form-wrap">
+
+      <div class="form-heading">
+        <h1>Welcome Back</h1>
+        <p>No account yet? <a href="{% url 'register_user' %}">Sign up free →</a></p>
+      </div>
+
+      <form class="login-form" method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+
+        <!-- Email -->
+        <div class="field">
+          <label for="email">Email</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+            <input type="email" id="email" name="email" placeholder="Enter your email" autocomplete="email" required autofocus>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="field">
+          <div class="field__label-row">
+            <label for="password">Password</label>
+            <a href="{% url 'password_reset' %}" class="forgot-link">Forgot password?</a>
+          </div>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+            <button type="button" class="pw-toggle" id="togglePassword" aria-label="Show password">
+              <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember me -->
+        <div class="remember-row">
+          <label class="checkbox-label">
+            <input type="checkbox" name="remember_me" id="remember_me">
+            <span class="checkbox-custom"></span>
+            Keep me logged in
+          </label>
+        </div>
+
+        <button type="submit" class="btn-submit">Log In →</button>
+
+        <p class="terms">
+          Protected by reCAPTCHA. <a href="{% url 'privacy' %}">Privacy</a> &amp; <a href="{% url 'terms' %}">Terms</a> apply.
+        </p>
+      </form>
+
+      <!-- Django messages -->
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li class="message message--{{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+    </div>
+  </main>
+
+  <script>
+    // Password visibility toggle
+    const toggleBtn = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
+
+    toggleBtn.addEventListener('click', () => {
+      const isHidden = passwordInput.type === 'password';
+      passwordInput.type = isHidden ? 'text' : 'password';
+      eyeIcon.innerHTML = isHidden
+        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
+        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    });
+  </script>
+
+</body>
+</html>

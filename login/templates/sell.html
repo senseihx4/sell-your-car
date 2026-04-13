@@ -1,0 +1,498 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sell Your Car — MotorVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/sell.css' %}">
+</head>
+
+<body>
+
+  <!-- ── NAV ── -->
+  <nav class="nav">
+    <a href="{% url 'home' %}" class="logo">MOTOR<span>VAULT</span></a>
+    <div class="nav__right">
+      <a href="{% url 'dashboard' %}" class="btn btn--ghost btn--sm">← Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+
+    <!-- ── LEFT INFO PANEL ── -->
+    <aside class="info-panel">
+      <div class="info-panel__sticky">
+        <span class="eyebrow">List a vehicle</span>
+        <h1 class="info-panel__title">Sell Your<br><em>Car Fast</em></h1>
+        <p class="info-panel__sub">Fill in your car's details accurately. Our team reviews every listing before it goes live.</p>
+
+        <ul class="steps">
+          <li class="step step--active" id="step-ind-1">
+            <div class="step__num">1</div>
+            <div class="step__body"><strong>Car Details</strong><span>Make, model, year & fuel</span></div>
+          </li>
+          <li class="step" id="step-ind-2">
+            <div class="step__num">2</div>
+            <div class="step__body"><strong>Pricing & Mileage</strong><span>Set your asking price</span></div>
+          </li>
+          <li class="step" id="step-ind-3">
+            <div class="step__num">3</div>
+            <div class="step__body"><strong>Documents</strong><span>Chassis, engine & plates</span></div>
+          </li>
+          <li class="step" id="step-ind-4">
+            <div class="step__num">4</div>
+            <div class="step__body"><strong>Photos</strong><span>Upload & pick main image</span></div>
+          </li>
+        </ul>
+
+        <div class="info-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Listing is reviewed by admin before going live. You'll be notified once approved.
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── RIGHT FORM ── -->
+    <main class="form-main">
+      <form class="sell-form" method="POST" action="{% url 'sell' %}" enctype="multipart/form-data" id="sellForm" novalidate>
+        {% csrf_token %}
+
+        <!-- ══════════ STEP 1: CAR DETAILS ══════════ -->
+        <div class="form-step active" id="step-1">
+          <div class="form-step__header">
+            <span class="step-label">Step 1 of 4</span>
+            <h2 class="form-step__title">Car Details</h2>
+            <p class="form-step__sub">Basic information about your vehicle</p>
+          </div>
+
+          <div class="form-grid form-grid--2">
+            <div class="field">
+              <label for="make">Make <span class="required">*</span></label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                <input type="text" id="make" name="make" placeholder="e.g. Honda, Hyundai, Tata" value="{{ form.make.value|default:'' }}" required>
+              </div>
+              {% if form.make.errors %}<p class="field__error">{{ form.make.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div class="field">
+              <label for="model">Model <span class="required">*</span></label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="8" width="22" height="10" rx="3"/><path d="M5 8V6a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v2"/><circle cx="8" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg>
+                <input type="text" id="model" name="model" placeholder="e.g. City, Creta, Nexon" value="{{ form.model.value|default:'' }}" required>
+              </div>
+              {% if form.model.errors %}<p class="field__error">{{ form.model.errors.0 }}</p>{% endif %}
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="variant">Variant <span class="optional">(optional)</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <input type="text" id="variant" name="variant" placeholder="e.g. ZX CVT, SX(O) Diesel AT" value="{{ form.variant.value|default:'' }}">
+            </div>
+          </div>
+
+          <div class="form-grid form-grid--2">
+            <div class="field">
+              <label for="year">Year <span class="required">*</span></label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <input type="number" id="year" name="year" placeholder="e.g. 2021" min="1990" max="2026" value="{{ form.year.value|default:'' }}" required>
+              </div>
+              {% if form.year.errors %}<p class="field__error">{{ form.year.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div class="field">
+              <label for="fuel_type">Fuel Type <span class="required">*</span></label>
+              <div class="input-wrap input-wrap--select">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V8l4-4h10l4 4v14"/><path d="M9 22V12h6v10"/><path d="M17 8h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2"/></svg>
+                <select id="fuel_type" name="fuel_type" required>
+                  <option value="">Select fuel type</option>
+                  <option value="Petrol"   {% if form.fuel_type.value == 'Petrol'   %}selected{% endif %}>Petrol</option>
+                  <option value="Diesel"   {% if form.fuel_type.value == 'Diesel'   %}selected{% endif %}>Diesel</option>
+                  <option value="Electric" {% if form.fuel_type.value == 'Electric' %}selected{% endif %}>Electric</option>
+                  <option value="Hybrid"   {% if form.fuel_type.value == 'Hybrid'   %}selected{% endif %}>Hybrid</option>
+                  <option value="CNG"      {% if form.fuel_type.value == 'CNG'      %}selected{% endif %}>CNG</option>
+                </select>
+                <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              {% if form.fuel_type.errors %}<p class="field__error">{{ form.fuel_type.errors.0 }}</p>{% endif %}
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <span></span>
+            <button type="button" class="btn btn--primary" onclick="goStep(2)">Next: Pricing →</button>
+          </div>
+        </div>
+
+        <!-- ══════════ STEP 2: PRICING & MILEAGE ══════════ -->
+        <div class="form-step" id="step-2">
+          <div class="form-step__header">
+            <span class="step-label">Step 2 of 4</span>
+            <h2 class="form-step__title">Pricing & Mileage</h2>
+            <p class="form-step__sub">Set a competitive price to attract buyers</p>
+          </div>
+
+          <div class="form-grid form-grid--2">
+            <div class="field">
+              <label for="price">Asking Price (₹) <span class="required">*</span></label>
+              <div class="input-wrap input-wrap--prefix">
+                <span class="input-prefix">₹</span>
+                <input type="number" id="price" name="price" placeholder="e.g. 850000" min="0" step="1000" value="{{ form.price.value|default:'' }}" required>
+              </div>
+              <p class="field__hint" id="priceHint"></p>
+              {% if form.price.errors %}<p class="field__error">{{ form.price.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div class="field">
+              <label for="mileage">Mileage (km) <span class="required">*</span></label>
+              <div class="input-wrap input-wrap--suffix">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <input type="number" id="mileage" name="mileage" placeholder="e.g. 25000" min="0" value="{{ form.mileage.value|default:'' }}" required>
+                <span class="input-suffix">km</span>
+              </div>
+              {% if form.mileage.errors %}<p class="field__error">{{ form.mileage.errors.0 }}</p>{% endif %}
+            </div>
+          </div>
+
+          <!-- Price preview -->
+          <div class="price-preview" id="pricePreview">
+            <div class="price-preview__label">Listing Price</div>
+            <div class="price-preview__value" id="priceDisplay">₹ —</div>
+            <div class="price-preview__sub" id="mileageDisplay">— km</div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="btn btn--ghost" onclick="goStep(1)">← Back</button>
+            <button type="button" class="btn btn--primary" onclick="goStep(3)">Next: Documents →</button>
+          </div>
+        </div>
+
+        <!-- ══════════ STEP 3: DOCUMENTS ══════════ -->
+        <div class="form-step" id="step-3">
+          <div class="form-step__header">
+            <span class="step-label">Step 3 of 4</span>
+            <h2 class="form-step__title">Vehicle Documents</h2>
+            <p class="form-step__sub">All fields are unique identifiers — double-check before submitting</p>
+          </div>
+
+          <div class="field">
+            <label for="license_plate_number">License Plate Number <span class="required">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 11h4M14 11h4M6 14h2M16 14h2"/></svg>
+              <input type="text" id="license_plate_number" name="license_plate_number" placeholder="e.g. CH01AB1234" value="{{ form.license_plate_number.value|default:'' }}" required style="text-transform:uppercase">
+            </div>
+            {% if form.license_plate_number.errors %}<p class="field__error">{{ form.license_plate_number.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div class="form-grid form-grid--2">
+            <div class="field">
+              <label for="chassis_number">Chassis Number <span class="required">*</span></label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                <input type="text" id="chassis_number" name="chassis_number" placeholder="17-char VIN / chassis no." maxlength="100" value="{{ form.chassis_number.value|default:'' }}" required style="text-transform:uppercase">
+              </div>
+              {% if form.chassis_number.errors %}<p class="field__error">{{ form.chassis_number.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div class="field">
+              <label for="engine_number">Engine Number <span class="required">*</span></label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg>
+                <input type="text" id="engine_number" name="engine_number" placeholder="Engine number" maxlength="100" value="{{ form.engine_number.value|default:'' }}" required style="text-transform:uppercase">
+              </div>
+              {% if form.engine_number.errors %}<p class="field__error">{{ form.engine_number.errors.0 }}</p>{% endif %}
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="insurance_number">Insurance Number <span class="required">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <input type="text" id="insurance_number" name="insurance_number" placeholder="Insurance policy number" maxlength="100" value="{{ form.insurance_number.value|default:'' }}" required style="text-transform:uppercase">
+            </div>
+            {% if form.insurance_number.errors %}<p class="field__error">{{ form.insurance_number.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div class="doc-notice">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="m9 12 2 2 4-4"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            All document numbers are kept confidential and used only for verification purposes.
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="btn btn--ghost" onclick="goStep(2)">← Back</button>
+            <button type="button" class="btn btn--primary" onclick="goStep(4)">Next: Photos →</button>
+          </div>
+        </div>
+
+        <!-- ══════════ STEP 4: PHOTOS ══════════ -->
+        <div class="form-step" id="step-4">
+          <div class="form-step__header">
+            <span class="step-label">Step 4 of 4</span>
+            <h2 class="form-step__title">Car Photos</h2>
+            <p class="form-step__sub">Upload up to 10 photos. Click any image to set it as the <strong>main cover photo</strong>.</p>
+          </div>
+
+          <!-- Drop zone -->
+          <div class="drop-zone" id="dropZone">
+            <input type="file" id="images" name="images" accept="image/*" multiple class="drop-zone__input">
+            <!-- Hidden field to send which index is the main image -->
+            <input type="hidden" name="main_image_index" id="mainImageIndex" value="0">
+
+            <div class="drop-zone__content" id="dropContent">
+              <div class="drop-zone__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+              <p class="drop-zone__title">Drag & drop photos here</p>
+              <p class="drop-zone__sub">or <span class="drop-zone__browse">browse files</span></p>
+              <p class="drop-zone__hint">JPG, PNG, WEBP · Max 5 MB each · Up to 10 photos</p>
+            </div>
+          </div>
+
+          <!-- Preview grid -->
+          <div class="preview-grid" id="previewGrid"></div>
+
+          <!-- Main image legend -->
+          <div class="photo-legend" id="photoLegend" style="display:none">
+            <div class="legend-item">
+              <span class="legend-dot legend-dot--gold"></span>
+              Main cover photo (shown first in listing)
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot legend-dot--default"></span>
+              Additional photos — click to make main
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="btn btn--ghost" onclick="goStep(3)">← Back</button>
+            <button type="submit" class="btn btn--primary btn--submit" id="submitBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
+              Submit Listing
+            </button>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- Django messages -->
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li class="message message--{{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+    </main>
+  </div>
+
+  <script>
+    // ── Step navigation ──
+    const totalSteps = 4;
+
+    function goStep(n) {
+      if (n < 1 || n > totalSteps) return;
+
+      // Validate current step before advancing
+      const current = parseInt(document.querySelector('.form-step.active').id.replace('step-', ''));
+      if (n > current && !validateStep(current)) return;
+
+      document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+      document.getElementById('step-' + n).classList.add('active');
+
+      // Update sidebar indicators
+      document.querySelectorAll('[id^="step-ind-"]').forEach((el, i) => {
+        el.classList.remove('step--active', 'step--done');
+        const num = i + 1;
+        if (num < n)  el.classList.add('step--done');
+        if (num === n) el.classList.add('step--active');
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Client-side step validation ──
+    function validateStep(n) {
+      const step = document.getElementById('step-' + n);
+      let valid = true;
+
+      step.querySelectorAll('[required]').forEach(input => {
+        input.classList.remove('input--error');
+        if (!input.value.trim()) {
+          input.classList.add('input--error');
+          input.closest('.field')?.querySelector('.field__error')?.remove();
+          const err = document.createElement('p');
+          err.className = 'field__error';
+          err.textContent = 'This field is required.';
+          input.closest('.input-wrap')?.after(err);
+          valid = false;
+        }
+      });
+
+      if (!valid) {
+        const firstErr = step.querySelector('.input--error');
+        firstErr?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstErr?.focus();
+      }
+      return valid;
+    }
+
+    // ── Price formatter ──
+    const priceInput   = document.getElementById('price');
+    const mileageInput = document.getElementById('mileage');
+    const priceDisplay = document.getElementById('priceDisplay');
+    const mileageDisplay = document.getElementById('mileageDisplay');
+    const priceHint    = document.getElementById('priceHint');
+
+    function updatePreview() {
+      const p = parseFloat(priceInput?.value);
+      const m = parseInt(mileageInput?.value);
+      if (p && !isNaN(p)) {
+        priceDisplay.textContent = '₹ ' + p.toLocaleString('en-IN');
+        priceHint.textContent = '≈ ₹ ' + (p / 100000).toFixed(2) + ' Lakh';
+      } else {
+        priceDisplay.textContent = '₹ —';
+        priceHint.textContent = '';
+      }
+      mileageDisplay.textContent = m && !isNaN(m) ? m.toLocaleString('en-IN') + ' km driven' : '— km';
+    }
+
+    priceInput?.addEventListener('input', updatePreview);
+    mileageInput?.addEventListener('input', updatePreview);
+
+    // ── Multi-image upload with main selector ──
+    const dropZone       = document.getElementById('dropZone');
+    const fileInput      = document.getElementById('images');
+    const previewGrid    = document.getElementById('previewGrid');
+    const photoLegend    = document.getElementById('photoLegend');
+    const mainIdxInput   = document.getElementById('mainImageIndex');
+    const dropContent    = document.getElementById('dropContent');
+    let allFiles         = [];
+    let mainIndex        = 0;
+
+    // Click on drop zone opens file picker
+    dropZone.addEventListener('click', (e) => {
+      if (!e.target.closest('.preview-thumb')) fileInput.click();
+    });
+
+    // Drag-and-drop events
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--over'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drop-zone--over');
+      handleFiles(Array.from(e.dataTransfer.files));
+    });
+
+    fileInput.addEventListener('change', () => handleFiles(Array.from(fileInput.files)));
+
+    function handleFiles(newFiles) {
+      const valid = newFiles.filter(f => f.type.startsWith('image/') && f.size <= 5 * 1024 * 1024);
+      const remaining = 10 - allFiles.length;
+      allFiles = [...allFiles, ...valid.slice(0, remaining)];
+      renderPreviews();
+    }
+
+    function renderPreviews() {
+      previewGrid.innerHTML = '';
+
+      if (allFiles.length === 0) {
+        dropContent.style.display = '';
+        photoLegend.style.display = 'none';
+        return;
+      }
+
+      dropContent.style.display = 'none';
+      photoLegend.style.display = 'flex';
+
+      allFiles.forEach((file, i) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const thumb = document.createElement('div');
+          thumb.className = 'preview-thumb' + (i === mainIndex ? ' preview-thumb--main' : '');
+          thumb.dataset.index = i;
+
+          thumb.innerHTML = `
+            <img src="${e.target.result}" alt="Car photo ${i + 1}">
+            <div class="thumb-overlay">
+              <button type="button" class="thumb-main-btn" title="Set as main photo">
+                ${i === mainIndex
+                  ? '<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Main Photo'
+                  : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Set Main'
+                }
+              </button>
+              <button type="button" class="thumb-remove-btn" title="Remove photo">✕</button>
+            </div>
+            ${i === mainIndex ? '<div class="thumb-main-badge">★ Main</div>' : ''}
+            <div class="thumb-num">${i + 1}</div>
+          `;
+
+          // Set as main
+          thumb.querySelector('.thumb-main-btn').addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            mainIndex = i;
+            mainIdxInput.value = i;
+            renderPreviews();
+          });
+
+          // Remove photo
+          thumb.querySelector('.thumb-remove-btn').addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            allFiles.splice(i, 1);
+            if (mainIndex >= allFiles.length) mainIndex = Math.max(0, allFiles.length - 1);
+            mainIdxInput.value = mainIndex;
+            renderPreviews();
+          });
+
+          previewGrid.appendChild(thumb);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // Add-more tile (if < 10)
+      if (allFiles.length < 10) {
+        const addTile = document.createElement('div');
+        addTile.className = 'preview-thumb preview-thumb--add';
+        addTile.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>Add more</span>
+        `;
+        addTile.addEventListener('click', () => fileInput.click());
+        previewGrid.appendChild(addTile);
+      }
+
+      // Sync the actual file input with a DataTransfer object
+      try {
+        const dt = new DataTransfer();
+        allFiles.forEach(f => dt.items.add(f));
+        fileInput.files = dt.files;
+      } catch (e) { /* Safari fallback — form will still submit */ }
+    }
+
+    // ── Plate uppercase auto-format ──
+    ['license_plate_number', 'chassis_number', 'engine_number', 'insurance_number'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', () => { el.value = el.value.toUpperCase(); });
+    });
+
+    // ── Remove inline error on input ──
+    document.querySelectorAll('input, select').forEach(el => {
+      el.addEventListener('input', () => {
+        el.classList.remove('input--error');
+        el.closest('.field')?.querySelector('.field__error')?.remove();
+      });
+    });
+  </script>
+
+</body>
+</html>

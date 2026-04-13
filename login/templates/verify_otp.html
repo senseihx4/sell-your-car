@@ -1,0 +1,222 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verify OTP — MotorVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/otp.css' %}">
+</head>
+
+<body>
+
+  <!-- ── LEFT DECORATIVE PANEL ── -->
+  <aside class="panel-left">
+    <a href="{% url 'home' %}" class="logo">MOTOR<span>VAULT</span></a>
+
+    <div class="panel-left__center">
+      <span class="panel-tag">Security check</span>
+      <h2 class="panel-headline">One Step<br><em>Away From</em><br>Your Ride</h2>
+      <p class="panel-sub">We sent a 6-digit code to verify it's really you. Enter it to complete your sign-in.</p>
+    </div>
+
+    <ul class="perks">
+      <li class="perk"><span class="perk__dot"></span>Code expires in 10 minutes</li>
+      <li class="perk"><span class="perk__dot"></span>Check your spam folder</li>
+      <li class="perk"><span class="perk__dot"></span>Request a new code anytime</li>
+      <li class="perk"><span class="perk__dot"></span>Your data stays secure</li>
+    </ul>
+  </aside>
+
+  <!-- ── RIGHT FORM PANEL ── -->
+  <main class="panel-right">
+    <div class="form-wrap">
+
+      <!-- Shield icon -->
+      <div class="shield-icon">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 4L6 12V24C6 34.5 14 43.5 24 46C34 43.5 42 34.5 42 24V12L24 4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M17 24L22 29L31 19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <div class="form-heading">
+        <h1>Verify OTP</h1>
+        <p class="form-heading__sub">
+          Enter the 6-digit code sent to
+          <strong>{{ email|default:"your email" }}</strong>
+        </p>
+      </div>
+
+      <form class="otp-form" method="POST" action="{% url 'verify_otp' %}" id="otpForm">
+        {% csrf_token %}
+
+        <!-- 6 OTP digit boxes -->
+        <div class="otp-inputs" id="otpInputs">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="one-time-code" name="otp_1" id="otp1" required>
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" name="otp_2" id="otp2" required>
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" name="otp_3" id="otp3" required>
+          <span class="otp-divider"></span>
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" name="otp_4" id="otp4" required>
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" name="otp_5" id="otp5" required>
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="off" name="otp_6" id="otp6" required>
+        </div>
+
+        <!-- Hidden full OTP field for Django view -->
+        <input type="hidden" name="otp" id="otpHidden">
+
+        <!-- Countdown timer -->
+        <div class="timer-row">
+          <svg class="timer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/>
+          </svg>
+          <span>Code expires in <strong id="countdown">10:00</strong></span>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">Verify Code →</button>
+      </form>
+
+      <!-- Resend -->
+      <div class="resend-row">
+        <span>Didn't receive it?</span>
+        <form method="POST" action="{% url 'resend_otp' %}" style="display:inline" id="resendForm">
+          {% csrf_token %}
+          <button type="submit" class="resend-btn" id="resendBtn" disabled>
+            Resend Code
+          </button>
+        </form>
+      </div>
+
+      <a href="{% url 'login' %}" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+          <path d="M19 12H5"/><path d="m12 5-7 7 7 7"/>
+        </svg>
+        Back to Login
+      </a>
+
+      <!-- Django messages -->
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li class="message message--{{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+    </div>
+  </main>
+
+  <script>
+    // ── OTP box auto-advance & backspace ──
+    const boxes = Array.from(document.querySelectorAll('.otp-box'));
+    const hiddenInput = document.getElementById('otpHidden');
+
+    boxes.forEach((box, i) => {
+      box.addEventListener('input', (e) => {
+        const val = e.target.value.replace(/\D/g, '');
+        box.value = val.slice(-1);
+
+        if (val && i < boxes.length - 1) boxes[i + 1].focus();
+        syncHidden();
+      });
+
+      box.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !box.value && i > 0) {
+          boxes[i - 1].focus();
+          boxes[i - 1].value = '';
+          syncHidden();
+        }
+        if (e.key === 'ArrowLeft' && i > 0) boxes[i - 1].focus();
+        if (e.key === 'ArrowRight' && i < boxes.length - 1) boxes[i + 1].focus();
+      });
+
+      // Handle paste anywhere
+      box.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pasted = (e.clipboardData || window.clipboardData)
+          .getData('text').replace(/\D/g, '').slice(0, 6);
+        pasted.split('').forEach((ch, idx) => {
+          if (boxes[idx]) boxes[idx].value = ch;
+        });
+        const next = Math.min(pasted.length, boxes.length - 1);
+        boxes[next].focus();
+        syncHidden();
+      });
+
+      box.addEventListener('focus', () => box.select());
+    });
+
+    function syncHidden() {
+      hiddenInput.value = boxes.map(b => b.value).join('');
+    }
+
+    // ── Countdown timer ──
+    const countdownEl = document.getElementById('countdown');
+    const resendBtn   = document.getElementById('resendBtn');
+    const OTP_DURATION = 10 * 60 * 1000; // 10 minutes in ms
+    const RESEND_AFTER = 60 * 1000;      // enable resend after 60s
+
+    // Persist expiry time across page reloads (wrong OTP submissions)
+    let expiryTime = parseInt(sessionStorage.getItem('otpExpiry'), 10);
+    if (!expiryTime || expiryTime <= Date.now()) {
+      expiryTime = Date.now() + OTP_DURATION;
+      sessionStorage.setItem('otpExpiry', expiryTime);
+    }
+
+    function updateTimer() {
+      const remaining = Math.max(0, Math.floor((expiryTime - Date.now()) / 1000));
+
+      if (remaining <= 0) {
+        clearInterval(timer);
+        countdownEl.textContent = '0:00';
+        countdownEl.classList.add('expired');
+        resendBtn.disabled = false;
+        resendBtn.classList.add('active');
+        sessionStorage.removeItem('otpExpiry');
+        return;
+      }
+
+      const m = Math.floor(remaining / 60);
+      const s = String(remaining % 60).padStart(2, '0');
+      countdownEl.textContent = `${m}:${s}`;
+
+      // Enable resend once less than (10min - 60s) remain
+      if (remaining <= OTP_DURATION / 1000 - RESEND_AFTER / 1000) {
+        resendBtn.disabled = false;
+        resendBtn.classList.add('active');
+      }
+    }
+
+    updateTimer(); // render immediately on load, no 1s blank
+    const timer = setInterval(updateTimer, 1000);
+
+    // ── Shake on wrong submit (add class 'shake' via Django message presence) ──
+    const hasError = document.querySelector('.message:not(.message--success)');
+    if (hasError) {
+      const inputsWrap = document.getElementById('otpInputs');
+      inputsWrap.classList.add('shake');
+      boxes.forEach(b => { b.value = ''; b.classList.add('error'); });
+      boxes[0].focus();
+      setTimeout(() => inputsWrap.classList.remove('shake'), 600);
+    }
+
+    // ── Clear timer on resend so it restarts fresh ──
+    document.getElementById('resendForm').addEventListener('submit', () => {
+      sessionStorage.removeItem('otpExpiry');
+    });
+
+    // ── Auto-submit when all 6 filled ──
+    function checkAutoSubmit() {
+      const full = boxes.every(b => b.value.length === 1);
+      if (full) {
+        syncHidden();
+        document.getElementById('otpForm').submit();
+      }
+    }
+    boxes.forEach(b => b.addEventListener('input', checkAutoSubmit));
+  </script>
+
+</body>
+</html>

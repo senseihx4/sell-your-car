@@ -1,0 +1,432 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MotorVault — Premium Auto Marketplace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+
+  <!-- ───────────── NAV ───────────── -->
+  <nav class="nav">
+    <a href="{% url 'home' %}" class="nav__logo">MOTOR<span>VAULT</span></a>
+    <ul class="nav__links">
+      <li><a href="{% url 'listings' %}">Inventory</a></li>
+      <li><a href="{% url 'sell' %}">Sell Your Car</a></li>
+      <li><a href="{% url 'financing' %}">Financing</a></li>
+      <li><a href="{% url 'about' %}">About</a></li>
+    </ul>
+    <div class="nav__actions">
+      {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}" class="btn btn--ghost">Dashboard</a>
+        <a href="{% url 'logout' %}" class="btn btn--primary">Log Out</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn btn--ghost">Log In</a>
+        <a href="{% url 'register' %}" class="btn btn--primary">Sign Up</a>
+      {% endif %}
+    </div>
+    <button class="nav__burger" aria-label="Open menu">&#9776;</button>
+  </nav>
+
+  <!-- ───────────── HERO ───────────── -->
+  <section class="hero">
+    <div class="hero__grid-lines"></div>
+    <div class="hero__content">
+      <p class="hero__eyebrow">{{ total_listings }}+ vehicles available</p>
+      <h1 class="hero__headline">Find Your<br><em>Perfect Drive</em></h1>
+      <p class="hero__sub">Curated luxury, sports & everyday vehicles — inspected, certified, and ready to own.</p>
+
+      <!-- Search bar -->
+      <form class="search-bar" method="GET" action="{% url 'search' %}">
+        <select name="make" class="search-bar__select">
+          <option value="">Make</option>
+          {% for make in makes %}
+            <option value="{{ make }}" {% if request.GET.make == make %}selected{% endif %}>{{ make }}</option>
+          {% endfor %}
+        </select>
+        <select name="model" class="search-bar__select">
+          <option value="">Model</option>
+        </select>
+        <select name="year" class="search-bar__select">
+          <option value="">Year</option>
+          {% for year in years %}
+            <option value="{{ year }}" {% if request.GET.year == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
+          {% endfor %}
+        </select>
+        <input type="number" name="max_price" placeholder="Max Price (₹)" class="search-bar__input" value="{{ request.GET.max_price }}">
+        <button type="submit" class="btn btn--primary btn--search">Search</button>
+      </form>
+
+      <div class="hero__tags">
+        <a href="{% url 'listings' %}?type=sedan" class="tag">Sedan</a>
+        <a href="{% url 'listings' %}?type=suv" class="tag">SUV</a>
+        <a href="{% url 'listings' %}?type=sports" class="tag">Sports</a>
+        <a href="{% url 'listings' %}?type=electric" class="tag">Electric</a>
+        <a href="{% url 'listings' %}?type=luxury" class="tag">Luxury</a>
+      </div>
+    </div>
+    <div class="hero__image-wrap">
+      <div class="hero__image-frame">
+        <img src="{% static 'members/images/bmw.jpg' %}" alt="Featured Vehicle" class="hero__car-img">
+        <div class="hero__image-placeholder">
+          <svg viewBox="0 0 120 60" fill="none" xmlns="http://www.w3.org/2000/svg" width="180" opacity="0.3">
+            <rect x="5" y="22" width="110" height="26" rx="6" fill="currentColor"/>
+            <rect x="25" y="10" width="60" height="18" rx="5" fill="currentColor"/>
+            <circle cx="28" cy="50" r="8" fill="none" stroke="currentColor" stroke-width="3"/>
+            <circle cx="92" cy="50" r="8" fill="none" stroke="currentColor" stroke-width="3"/>
+          </svg>
+        </div>
+      </div>
+      <div class="hero__badge">
+        <span class="hero__badge-num">{{ featured_count|default:"24" }}</span>
+        <span class="hero__badge-label">Featured Today</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── STATS ───────────── -->
+  <section class="stats">
+    <div class="stats__item">
+      <span class="stats__num">{{ total_listings|default:"1,200" }}+</span>
+      <span class="stats__label">Vehicles Listed</span>
+    </div>
+    <div class="stats__divider"></div>
+    <div class="stats__item">
+      <span class="stats__num">{{ happy_customers|default:"8,400" }}+</span>
+      <span class="stats__label">Happy Customers</span>
+    </div>
+    <div class="stats__divider"></div>
+    <div class="stats__item">
+      <span class="stats__num">{{ cities|default:"32" }}</span>
+      <span class="stats__label">Cities Covered</span>
+    </div>
+    <div class="stats__divider"></div>
+    <div class="stats__item">
+      <span class="stats__num">4.9★</span>
+      <span class="stats__label">Average Rating</span>
+    </div>
+  </section>
+
+  <!-- ───────────── FEATURED LISTINGS ───────────── -->
+  <section class="listings-section">
+    <div class="section-header">
+      <div>
+        <p class="section-eyebrow">Hand-picked Selection</p>
+        <h2 class="section-title">Featured Vehicles</h2>
+      </div>
+      <a href="{% url 'listings' %}" class="btn btn--ghost">View All →</a>
+    </div>
+
+    <div class="car-grid">
+      {% for car in featured_cars %}
+      <article class="car-card">
+        <a href="{% url 'car_detail' car.pk %}" class="car-card__img-wrap">
+          {% if car.image %}
+            <img src="{{ car.image.url }}" alt="{{ car.year }} {{ car.make }} {{ car.model }}" class="car-card__img">
+          {% else %}
+            <div class="car-card__img-placeholder">
+              <svg viewBox="0 0 80 45" fill="none" xmlns="http://www.w3.org/2000/svg" width="80" opacity="0.25">
+                <rect x="2" y="14" width="76" height="20" rx="5" fill="currentColor"/>
+                <rect x="16" y="6" width="44" height="14" rx="4" fill="currentColor"/>
+                <circle cx="18" cy="36" r="6" fill="none" stroke="currentColor" stroke-width="2.5"/>
+                <circle cx="62" cy="36" r="6" fill="none" stroke="currentColor" stroke-width="2.5"/>
+              </svg>
+            </div>
+          {% endif %}
+          {% if car.is_certified %}
+            <span class="car-card__badge">Certified</span>
+          {% endif %}
+        </a>
+        <div class="car-card__body">
+          <div class="car-card__meta">
+            <span>{{ car.year }}</span>
+            <span>{{ car.mileage|floatformat:0 }} km</span>
+            <span>{{ car.fuel_type }}</span>
+          </div>
+          <h3 class="car-card__name">{{ car.make }} {{ car.model }}</h3>
+          <p class="car-card__variant">{{ car.variant }}</p>
+          <div class="car-card__footer">
+            <span class="car-card__price">₹{{ car.price|floatformat:0 }}</span>
+            <a href="{% url 'car_detail' car.pk %}" class="btn btn--primary btn--sm">Details</a>
+          </div>
+        </div>
+      </article>
+      {% empty %}
+      <p style="color:rgba(255,255,255,0.4);grid-column:1/-1;text-align:center;padding:3rem 0;">No approved listings yet. Check back soon.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ───────────── SELL YOUR CAR CTA ───────────── -->
+  <section class="sell-cta">
+    <div class="sell-cta__content">
+      <p class="section-eyebrow" style="color: var(--accent)">Sell in 48 hours</p>
+      <h2 class="sell-cta__title">Got a car to sell?</h2>
+      <p class="sell-cta__body">List your vehicle in minutes. We handle inspections, paperwork, and find you a buyer — fast.</p>
+      <a href="{% url 'sell' %}" class="btn btn--primary btn--lg">Start Selling Free</a>
+    </div>
+    <div class="sell-cta__graphic">
+      <div class="sell-cta__circle sell-cta__circle--1"></div>
+      <div class="sell-cta__circle sell-cta__circle--2"></div>
+      <span class="sell-cta__tag">₹0 listing fee</span>
+    </div>
+  </section>
+
+  <!-- ───────────── WHY US ───────────── -->
+  <section class="why-us">
+    <div class="section-header">
+      <div>
+        <p class="section-eyebrow">Why MotorVault</p>
+        <h2 class="section-title">Buying made simple</h2>
+      </div>
+    </div>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-card__icon">🔍</div>
+        <h3>200-Point Inspection</h3>
+        <p>Every vehicle passes our rigorous mechanical and cosmetic check before listing.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-card__icon">📄</div>
+        <h3>Clear Documentation</h3>
+        <p>Full ownership history, RC transfer assistance, and insurance support included.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-card__icon">💳</div>
+        <h3>Easy Financing</h3>
+        <p>Partner banks offering loans at competitive rates with minimal paperwork.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-card__icon">🔄</div>
+        <h3>7-Day Return</h3>
+        <p>Not happy? Return within 7 days, no questions asked — your peace of mind matters.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── TESTIMONIALS ───────────── -->
+  <section class="testimonials">
+    <p class="section-eyebrow" style="text-align:center">What buyers say</p>
+    <h2 class="section-title" style="text-align:center;margin-bottom:3rem">Real Stories</h2>
+    <div class="testimonial-grid">
+      {% for review in reviews %}
+      <div class="testimonial-card">
+        <p class="testimonial-card__text">"{{ review.text }}"</p>
+        <div class="testimonial-card__author">
+          <strong>{{ review.name }}</strong>
+          <span>{{ review.car_bought }}</span>
+        </div>
+      </div>
+      {% empty %}
+      <div class="testimonial-card">
+        <p class="testimonial-card__text">"Bought my first car through MotorVault. The process was smooth, transparent, and the team was super helpful. Highly recommended!"</p>
+        <div class="testimonial-card__author"><strong>Arjun Mehta</strong><span>2021 Honda City</span></div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-card__text">"Listed my old Creta and got a buyer within 2 days. Best price, zero hassle. I'll use MotorVault every time."</p>
+        <div class="testimonial-card__author"><strong>Priya Sharma</strong><span>Sold 2019 Hyundai Creta</span></div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-card__text">"The 200-point inspection report gave me real confidence. Financed through their partner bank at a great rate too!"</p>
+        <div class="testimonial-card__author"><strong>Rohan Desai</strong><span>2022 Tata Nexon EV</span></div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ───────────── FOOTER ───────────── -->
+  <footer class="footer">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a href="{% url 'home' %}" class="nav__logo">MOTOR<span>VAULT</span></a>
+        <p>India's most trusted pre-owned car marketplace. Quality, transparency, and speed — always.</p>
+      </div>
+      <div class="footer__links-group">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="{% url 'listings' %}">Browse Cars</a></li>
+          <li><a href="{% url 'sell' %}">Sell Your Car</a></li>
+          <li><a href="{% url 'financing' %}">Financing</a></li>
+          <li><a href="{% url 'compare' %}">Compare</a></li>
+        </ul>
+      </div>
+      <div class="footer__links-group">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="{% url 'about' %}">About Us</a></li>
+          <li><a href="{% url 'careers' %}">Careers</a></li>
+          <li><a href="{% url 'press' %}">Press</a></li>
+          <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer__links-group">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="{% url 'privacy' %}">Privacy Policy</a></li>
+          <li><a href="{% url 'terms' %}">Terms of Service</a></li>
+          <li><a href="{% url 'refund' %}">Refund Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© {% now "Y" %} MotorVault. All rights reserved.</span>
+      <div class="footer__socials">
+        <a href="#" aria-label="Instagram">IG</a>
+        <a href="#" aria-label="Twitter">TW</a>
+        <a href="#" aria-label="YouTube">YT</a>
+        <a href="#" aria-label="LinkedIn">LI</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ── Mobile nav toggle ──
+    const burger = document.querySelector('.nav__burger');
+    const navLinks = document.querySelector('.nav__links');
+    const navActions = document.querySelector('.nav__actions');
+
+    if (burger) {
+      burger.addEventListener('click', () => {
+        const open = burger.getAttribute('aria-expanded') === 'true';
+        burger.setAttribute('aria-expanded', String(!open));
+
+        [navLinks, navActions].forEach(el => {
+          if (!el) return;
+          if (open) {
+            el.removeAttribute('style');
+          } else {
+            Object.assign(el.style, {
+              display: 'flex',
+              flexDirection: 'column',
+              position: 'fixed',
+              top: '64px', left: '0', right: '0',
+              background: 'rgba(13,13,13,0.97)',
+              backdropFilter: 'blur(16px)',
+              padding: '1.5rem 5vw',
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+              gap: '1rem',
+              zIndex: '99',
+              animation: 'fadeUp 0.25s ease'
+            });
+          }
+        });
+      });
+
+      // Close menu on outside click
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.nav')) {
+          burger.setAttribute('aria-expanded', 'false');
+          [navLinks, navActions].forEach(el => el && el.removeAttribute('style'));
+        }
+      });
+    }
+
+    // ── Scroll-reveal for cards ──
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.car-card, .why-card, .testimonial-card').forEach((el, i) => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(28px)';
+      el.style.transition = `opacity 0.55s ${i * 0.07}s ease, transform 0.55s ${i * 0.07}s ease`;
+      revealObserver.observe(el);
+    });
+
+    // ── Animated stat counters ──
+    function animateCounter(el, target, duration = 1600) {
+      const isFloat = target % 1 !== 0;
+      const start = performance.now();
+      const update = (now) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+        const current = Math.floor(ease * target);
+        el.textContent = isFloat
+          ? (ease * target).toFixed(1) + '★'
+          : current.toLocaleString('en-IN') + (el.dataset.suffix || '');
+        if (progress < 1) requestAnimationFrame(update);
+      };
+      requestAnimationFrame(update);
+    }
+
+    const statObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const raw = el.dataset.count;
+        if (!raw) return;
+        animateCounter(el, parseFloat(raw));
+        statObserver.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.stats__num').forEach(el => {
+      // Parse the text to get a numeric target
+      const text = el.textContent.trim();
+      const num = parseFloat(text.replace(/[^0-9.]/g, ''));
+      if (!isNaN(num)) {
+        const suffix = text.includes('+') ? '+' : text.includes('★') ? '' : '';
+        el.dataset.count = num;
+        el.dataset.suffix = suffix;
+        el.textContent = '0' + suffix;
+        statObserver.observe(el);
+      }
+    });
+
+    // ── Dynamic model dropdown ──
+    const makeSelect = document.querySelector('select[name="make"]');
+    const modelSelect = document.querySelector('select[name="model"]');
+
+    if (makeSelect && modelSelect) {
+      makeSelect.addEventListener('change', async () => {
+        const make = makeSelect.value;
+        modelSelect.innerHTML = '<option value="">Model</option>';
+        if (!make) return;
+        try {
+          const res = await fetch(`/api/models/?make=${encodeURIComponent(make)}`);
+          if (!res.ok) throw new Error('API error');
+          const models = await res.json();
+          models.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m; opt.textContent = m;
+            modelSelect.appendChild(opt);
+          });
+        } catch (e) {
+          console.warn('Could not fetch models:', e);
+        }
+      });
+    }
+
+    // ── Sticky nav shadow on scroll ──
+    const nav = document.querySelector('.nav');
+    window.addEventListener('scroll', () => {
+      nav.style.boxShadow = window.scrollY > 10
+        ? '0 4px 30px rgba(0,0,0,0.5)'
+        : 'none';
+    }, { passive: true });
+
+    // ── Active tag highlight ──
+    const params = new URLSearchParams(window.location.search);
+    const activeType = params.get('type');
+    if (activeType) {
+      document.querySelectorAll('.tag').forEach(tag => {
+        if (tag.href.includes(`type=${activeType}`)) {
+          tag.style.borderColor = 'var(--accent)';
+          tag.style.color = 'var(--accent)';
+          tag.style.background = 'rgba(232,200,74,0.08)';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

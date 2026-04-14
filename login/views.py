@@ -8,6 +8,8 @@ from .models import User, cars
 from django.contrib import messages
 import random
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+
 def _send_otp_email(to_email, otp):
     response = requests.post(
         "https://api.brevo.com/v3/smtp/email",
@@ -122,12 +124,50 @@ def financing(request):
 def about(request):
     return render(request, 'about.html')
 
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import User, cars
+
+@login_required
 def dashboard(request):
-    user_cars = cars.objects.filter(owner=request.user) if request.user.is_authenticated else []
-    return render(request, 'dashboard.html', {'user_cars': user_cars})
+    
+    if request.user.user_type == 1 or request.user.is_superuser:
+       
+        all_users = User.objects.all().order_by('-id')
+        
+        
+        all_cars = cars.objects.all().order_by('-created_at')
+        
+       
+        stats = {
+            'total_users': all_users.count(),
+            'total_listings': all_cars.count(),
+            'pending_approvals': cars.objects.filter(is_approved=False).count(),
+            'verified_users': User.objects.filter(is_verified=True).count(),
+        }
+
+        context = {
+            'is_superadmin': True,
+            'user_cars': all_cars,
+            'all_users': all_users,
+            'stats': stats,
+        }
+    else:
+        
+        user_cars = cars.objects.filter(owner=request.user).order_by('-created_at')
+        
+        context = {
+            'is_superadmin': False,
+            'user_cars': user_cars,
+        }
+
+    return render(request, 'dashboard.html', context)
 
 def edit_car(request, pk):
-    car = cars.objects.get(pk=pk, owner=request.user)
+    if request.user.user_type == 1:
+        car = cars.objects.get(pk=pk)
+    else:
+        car = cars.objects.get(pk=pk, owner=request.user)
     if request.method == 'POST':
         form = CarForm(request.POST, request.FILES, instance=car)
         if form.is_valid():
@@ -152,10 +192,59 @@ def edit_car(request, pk):
     return render(request, 'sell.html', {'form': form})
 
 def delete_car(request, pk):
-    car = cars.objects.get(pk=pk, owner=request.user)
+    if request.user.user_type == 1:
+        car = cars.objects.get(pk=pk)
+    else:
+        car = cars.objects.get(pk=pk, owner=request.user)
     car.delete()
     messages.success(request, 'Car deleted successfully.')
     return redirect('dashboard')
+
+@login_required
+def approve_car(request, pk):
+    if request.user.user_type != 1:
+        return redirect('dashboard')
+    car = cars.objects.get(pk=pk)
+    car.is_approved = not car.is_approved
+    car.save()
+    status = 'approved' if car.is_approved else 'unapproved'
+    messages.success(request, f'Car {status} successfully.')
+    return redirect('dashboard')
+
+@login_required
+def ban_user(request, pk):
+    if request.user.user_type != 1:
+        return redirect('dashboard')
+    target = User.objects.get(pk=pk)
+    target.is_active = not target.is_active
+    target.save()
+    action = 'unbanned' if target.is_active else 'banned'
+    messages.success(request, f'User {action} successfully.')
+    return redirect('dashboard')
+
+@login_required
+def delete_user(request, pk):
+    if request.user.user_type != 1:
+        return redirect('dashboard')
+    target = User.objects.get(pk=pk)
+    target.delete()
+    messages.success(request, 'User deleted successfully.')
+    return redirect('dashboard')
+
+@login_required
+def edit_user(request, pk):
+    if request.user.user_type != 1:
+        return redirect('dashboard')
+    target = User.objects.get(pk=pk)
+    if request.method == 'POST':
+        target.name = request.POST.get('name', target.name)
+        target.user_type = int(request.POST.get('user_type', target.user_type))
+        target.is_verified = request.POST.get('is_verified') == 'on'
+        target.is_active = request.POST.get('is_active') == 'on'
+        target.save()
+        messages.success(request, 'User updated successfully.')
+        return redirect('dashboard')
+    return render(request, 'edit_user.html', {'target': target})
 
 def update_profile(request):
     return render(request, 'update_profile.html')
@@ -173,9 +262,9 @@ def user_login(request):
         elif not user.check_password(password):
             print(f"[DEV] Login failed: wrong password for email={email}")
             messages.error(request, 'Invalid email or password.')
-        elif user.user_type == 1:
-                login(request, user)
-                return redirect('/admin/')
+        # elif user.user_type == 1:
+        #         login(request, user)
+        #         return redirect('/admin/')
         elif not user.is_verified:
             print(f"[DEV] Login failed: user not verified email={email}")
             messages.error(request, 'Account verification has been removed contact admin.')

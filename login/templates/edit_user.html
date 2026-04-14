@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit User — MotorVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/edit_user.css' %}">
+</head>
+<body class="edit-page-bg">
+
+  <div class="edit-wrap">
+    <a href="{% url 'dashboard' %}" class="edit-back">← Back to Dashboard</a>
+
+    <div class="edit-card">
+      <div class="edit-title">Edit User</div>
+      <p class="edit-subtitle">{{ target.email }}</p>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="edit-messages">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="field">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" value="{{ target.name|default:'' }}">
+        </div>
+
+        <div class="field">
+          <label for="user_type">Role</label>
+          <select id="user_type" name="user_type">
+            <option value="1" {% if target.user_type == 1 %}selected{% endif %}>SuperAdmin</option>
+            <option value="2" {% if target.user_type == 2 %}selected{% endif %}>Admin</option>
+            <option value="3" {% if target.user_type == 3 %}selected{% endif %}>User</option>
+          </select>
+        </div>
+
+        <hr class="edit-divider">
+
+        <div class="field">
+          <div class="field-check">
+            <input type="checkbox" id="is_verified" name="is_verified" {% if target.is_verified %}checked{% endif %}>
+            <label for="is_verified">Email Verified</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-check">
+            <input type="checkbox" id="is_active" name="is_active" {% if target.is_active %}checked{% endif %}>
+            <label for="is_active">Account Active (uncheck to ban)</label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn--primary">Save Changes</button>
+          <a href="{% url 'dashboard' %}" class="btn btn--ghost">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

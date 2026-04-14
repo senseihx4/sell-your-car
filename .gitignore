@@ -1,0 +1,29 @@
+# Virtual environment
+venv/
+lib/
+bin/
+lib64/
+pyvenv.cfg
+
+# Environment variables
+.env
+
+# Database
+db.sqlite3
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Static files (generated)
+staticfiles/
+
+# Media files
+media/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store

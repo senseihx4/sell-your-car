@@ -122,7 +122,7 @@ STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'login.User'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "REMOVED_SECRET")
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
 
 BREVO_SENDER_EMAIL = os.environ.get("BREVO_SENDER_EMAIL", "kartik7087@gmail.com")
 BREVO_SENDER_NAME = os.environ.get("BREVO_SENDER_NAME", "Fairy Club")

@@ -432,7 +432,7 @@ ul { list-style: none; }
 
 /* ─────────────── ANIMATIONS ─────────────── */
 
-@keyframes fadeUp {
+/* @keyframes fadeUp {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -441,7 +441,7 @@ ul { list-style: none; }
     opacity: 1;
     transform: translateY(0);
   }
-}
+} */
 
 /* ─────────────── RESPONSIVE ─────────────── */
 

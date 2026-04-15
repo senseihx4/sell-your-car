@@ -1,9 +1,9 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
-from django.contrib.auth import login, logout as auth_logout
+from django.contrib.auth import login, logout as auth_logout, update_session_auth_hash
 import requests
 from django.conf import settings
-from .forms import UserForm, CarForm
+from .forms import UserForm, CarForm, updateprofileform
 from .models import User, cars
 from django.contrib import messages
 import random
@@ -47,11 +47,14 @@ def register_user(request):
             phone = form.cleaned_data.get('phone_number')
 
             if User.objects.filter(email=email).exists():
-                messages.error(request, 'Email already registered.')
+                messages.error(request, 'Email already registered.', extra_tags='error')
                 return render(request, 'signup.html', {'form': form})
 
-            if phone and User.objects.filter(phone_number=phone).exists():
-                messages.error(request, 'Phone number already exists.')
+            elif phone and User.objects.filter(phone_number=phone).exists():
+                messages.error(request, 'Phone number already exists.', extra_tags='error')
+                return render(request, 'signup.html', {'form': form})
+            elif phone and not phone.isdigit():
+                messages.error(request, 'Phone number must contain only digits.', extra_tags='error')
                 return render(request, 'signup.html', {'form': form})
 
             otp = str(random.randint(100000, 999999))
@@ -88,7 +91,7 @@ def home(request):
 
 def listings(request):
     return render(request, 'listings.html')
-
+@login_required(login_url='login')
 def sell(request):
     if request.method == 'POST':
         if not request.user.is_authenticated:
@@ -133,7 +136,7 @@ def dashboard(request):
     
     if request.user.user_type == 1 or request.user.is_superuser:
        
-        all_users = User.objects.all().order_by('-id')
+        all_users = User.objects.filter(user_type=3).order_by('-id')
         
         
         all_cars = cars.objects.all().order_by('-created_at')
@@ -214,13 +217,24 @@ def approve_car(request, pk):
 @login_required
 def ban_user(request, pk):
     if request.user.user_type != 1:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'error': 'Unauthorized'}, status=403)
         return redirect('dashboard')
+    
+    
     target = User.objects.get(pk=pk)
     target.is_active = not target.is_active
     target.save()
     action = 'unbanned' if target.is_active else 'banned'
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({
+            'status': 'success',
+            'is_active': target.is_active,
+            'message': f'User {action} successfully.'
+        })
+
     messages.success(request, f'User {action} successfully.')
-    return redirect('dashboard')
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
 
 @login_required
 def delete_user(request, pk):
@@ -235,20 +249,50 @@ def delete_user(request, pk):
 def edit_user(request, pk):
     if request.user.user_type != 1:
         return redirect('dashboard')
+        
     target = User.objects.get(pk=pk)
+    
     if request.method == 'POST':
+        # Update existing fields
         target.name = request.POST.get('name', target.name)
         target.user_type = int(request.POST.get('user_type', target.user_type))
         target.is_verified = request.POST.get('is_verified') == 'on'
         target.is_active = request.POST.get('is_active') == 'on'
+        
+        # --- ADD THE NEW FIELDS HERE ---
+        target.first_name = request.POST.get('first_name', target.first_name)
+        target.last_name = request.POST.get('last_name', target.last_name)
+        target.username = request.POST.get('username', target.username)
+        target.age = request.POST.get('age') or None # Handles empty string
+        target.phone_number = request.POST.get('phone_number') or None
+        
+        # Handle Profile Picture
+        if 'profile_picture' in request.FILES:
+            target.profile_picture = request.FILES['profile_picture']
+            
         target.save()
         messages.success(request, 'User updated successfully.')
         return redirect('dashboard')
+        
     return render(request, 'edit_user.html', {'target': target})
 
 def update_profile(request):
-    return render(request, 'update_profile.html')
+    if request.method == 'POST':
+        form = updateprofileform(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated!')
+            return redirect('dashboard')
+        else:
+            
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = updateprofileform(instance=request.user)
 
+    return render(request, 'update_profile.html', {'form': form})
+
+    
+    return render(request, 'update_profile.html', {'form': form})
 def user_login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -268,6 +312,9 @@ def user_login(request):
         elif not user.is_verified:
             print(f"[DEV] Login failed: user not verified email={email}")
             messages.error(request, 'Account verification has been removed contact admin.')
+        elif not user.is_active:
+            print(f"[DEV] Login failed: user is inactive email={email}")
+            messages.error(request, 'Your account has been banned. Contact support for help.')
         else:
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             login(request, user)

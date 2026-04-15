@@ -19,9 +19,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     choices=USER_TYPES,
     default=3
      ) 
+    first_name = models.CharField(max_length=30, null=True, blank=True)
+    last_name = models.CharField(max_length=30, null=True, blank=True)
     username = models.CharField(max_length=100, null=True, blank=True)
     email = models.EmailField(unique=True)
-    phone_number = models.IntegerField(max_length=20, null=True, blank=True, unique=True)
+    phone_number = models.CharField(max_length=20, null=True, blank=True, unique=True)
     name = models.CharField(max_length=100, null=True, blank=True)
     age = models.PositiveIntegerField(null=True, blank=True)
 

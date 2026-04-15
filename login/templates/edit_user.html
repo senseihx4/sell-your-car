@@ -25,21 +25,49 @@
         {% endfor %}
       {% endif %}
 
-      <form method="post">
+      <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
-        <div class="field">
-          <label for="name">Full Name</label>
-          <input type="text" id="name" name="name" value="{{ target.name|default:'' }}">
+        <div class="edit-grid">
+            <div class="field">
+                <label for="first_name">First Name</label>
+                <input type="text" id="first_name" name="first_name" value="{{ target.first_name|default:'' }}">
+            </div>
+            <div class="field">
+                <label for="last_name">Last Name</label>
+                <input type="text" id="last_name" name="last_name" value="{{ target.last_name|default:'' }}">
+            </div>
         </div>
 
         <div class="field">
-          <label for="user_type">Role</label>
-          <select id="user_type" name="user_type">
-            <option value="1" {% if target.user_type == 1 %}selected{% endif %}>SuperAdmin</option>
-            <option value="2" {% if target.user_type == 2 %}selected{% endif %}>Admin</option>
-            <option value="3" {% if target.user_type == 3 %}selected{% endif %}>User</option>
-          </select>
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="{{ target.username|default:'' }}">
+        </div>
+
+        <div class="field">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" value="{{ target.email }}">
+        </div>
+
+        <div class="edit-grid">
+            <div class="field">
+                <label for="phone_number">Phone Number</label>
+                <input type="number" id="phone_number" name="phone_number" value="{{ target.phone_number|default:'' }}">
+            </div>
+            <div class="field">
+                <label for="age">Age</label>
+                <input type="number" id="age" name="age" value="{{ target.age|default:'' }}">
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="profile_picture">Profile Picture</label>
+            {% if target.profile_picture %}
+                <div class="current-pic-preview">
+                    <img src="{{ target.profile_picture.url }}" alt="Current" style="width: 50px; height: 50px; border-radius: 50%; margin-bottom: 5px; object-fit: cover;">
+                </div>
+            {% endif %}
+            <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
         </div>
 
         <hr class="edit-divider">

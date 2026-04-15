@@ -14,3 +14,11 @@ class CarForm(forms.ModelForm):
     class Meta:
         model = cars
         exclude = ['owner', 'is_approved', 'image']
+
+class updateprofileform(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput(), required=False)
+
+    class Meta:
+        model = User
+       
+        fields = ['first_name', 'last_name',  'phone_number','profile_picture']
